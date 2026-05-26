@@ -1054,7 +1054,7 @@ function renderClasses(){
     classes.forEach((cls,idx)=>{
         const card = document.createElement('div');
         card.className='class-card';
-        const count = classCounts[cls.name]||0;
+        const count = (thumbnailStore[idx]||[]).length;
         const isCamOpen = camOpenIdx === idx;
 
         card.innerHTML=`
@@ -1153,11 +1153,11 @@ function renderClasses(){
 }
 
 function renderStats(){
-    document.getElementById('statsList').innerHTML=classes.map(cls=>`
+    document.getElementById('statsList').innerHTML=classes.map((cls,idx)=>`
         <div class="stat-row">
             <div class="stat-dot" style="background:${cls.color}"></div>
             <span class="stat-name">${cls.name}</span>
-            <span class="stat-count">${classCounts[cls.name]||0} samples</span>
+            <span class="stat-count">${(thumbnailStore[idx]||[]).length} samples</span>
         </div>`).join('');
 }
 
@@ -1289,7 +1289,7 @@ function setTrainState(html){document.getElementById('trainStateBox').innerHTML=
 
 async function trainModel(){
     if(!moveNet){alert('MoveNet not loaded yet.');return;}
-    const minSamples = Math.min(...classes.map(c=>classCounts[c.name]||0));
+    const minSamples = Math.min(...classes.map((c,idx)=>(thumbnailStore[idx]||[]).length));
     if(minSamples < 5){
         alert(`Need at least 5 samples per class. Some classes have fewer.`);return;
     }
