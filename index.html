@@ -745,11 +745,6 @@
        Width: 275px, positioned right inside .main
        ══════════════════════════════════════════════════ */
 
-    /* ── Hide Blockly's built-in zoom controls & trashcan ──
-       The Figma design does not show these on the canvas. */
-    .blocklyZoomControls,
-    .blocklyTrash { display: none !important; }
-
     /* The floating panel wrapper — absolutely on top of workspace */
     #codePanel {
       position: absolute;
@@ -762,60 +757,25 @@
       flex-direction: column;
       gap: 7px;
       pointer-events: none; /* cards handle their own events */
-      transition: width 0.3s ease, transform 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
     #codePanel > * { pointer-events: all; }
 
-    /* ── COLLAPSED state: mini pill cards, no full content ── */
-    #codePanel.panel-collapsed {
-      width: 220px;
+    /* Hidden state — panel slides off right */
+    #codePanel.show {
+      transform: translateX(300px);
+      opacity: 0;
+      pointer-events: none;
     }
-
-    /* In collapsed mode: cp-card becomes a small pill */
-    #codePanel.panel-collapsed #cp-card {
-      flex: 0 0 auto;
-      min-height: 0;
-      border-radius: 999px;
-      overflow: visible;
-    }
-    #codePanel.panel-collapsed #cp-header {
-      height: 52px;
-      padding: 0 14px;
-    }
-    #codePanel.panel-collapsed .cp-divider,
-    #codePanel.panel-collapsed #pyOut,
-    #codePanel.panel-collapsed .cp-right-controls { display: none; }
-
-    /* Show the expand arrow icon in collapsed cp-card */
-    #codePanel.panel-collapsed .cp-expand-arrow { display: flex !important; }
-
-    /* In collapsed mode: terminal-card becomes a small pill too */
-    #codePanel.panel-collapsed #terminal-card {
-      flex: 0 0 auto;
-      min-height: 0;
-      border-radius: 999px;
-    }
-    #codePanel.panel-collapsed #terminal-header {
-      height: 52px;
-      padding: 0 14px;
-    }
-    #codePanel.panel-collapsed .term-divider,
-    #codePanel.panel-collapsed .rd-wrapper { display: none; }
-
-    /* Show the expand arrow icon in collapsed terminal-card */
-    #codePanel.panel-collapsed .term-expand-btn { display: flex !important; }
-
-    /* Spacer so pills sit at top in collapsed mode */
-    #codePanel.panel-collapsed { justify-content: flex-start; bottom: auto; }
 
     /* ── Collapse/expand circle arrow button ──
        Positioned to the LEFT of the panel (like Figma's circle btn) */
     #panelCollapseBtn {
       position: absolute;
-      left: -16px;
+      left: -16px;         /* half-overlaps the panel edge */
       top: 15px;
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #333840;
       border: none;
@@ -824,17 +784,19 @@
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       z-index: 30;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.2s, transform 0.3s;
+      transition: background 0.2s;
       flex-shrink: 0;
       pointer-events: all;
     }
     #panelCollapseBtn:hover { background: #1e2530; }
-    /* Arrow rotates when expanded vs collapsed */
-    #codePanel:not(.panel-collapsed) #panelCollapseBtn { transform: rotate(0deg); }
-    #codePanel.panel-collapsed #panelCollapseBtn { transform: rotate(180deg); }
+    /* When panel is hidden, btn stays visible and shifts left */
+    #codePanel.show #panelCollapseBtn {
+      left: calc(-300px - 16px); /* move with panel so it's always reachable */
+      transform: none;
+    }
 
     /* ── Code Preview card ── */
     #cp-card {
@@ -842,13 +804,12 @@
       min-height: 0;
       position: relative;
       background: #ffffff;
-      border: 1.5px solid #e2e8f0;
+      border: 1px solid #dfdfdf;
       border-radius: 24px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      transition: flex 0.3s ease, border-radius 0.3s ease, min-height 0.3s ease;
     }
 
     #cp-header {
@@ -860,35 +821,19 @@
       gap: 10px;
     }
     .cp-code-icon {
-      width: 28px; height: 28px;
+      width: 20px; height: 20px;
       background: #333840;
-      border-radius: 7px;
+      border-radius: 5px;
       box-shadow: 0 0 1px rgba(0,0,0,0.25);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; color: #fff; font-size: 11px;
+      flex-shrink: 0; color: #fff; font-size: 9px;
     }
     .cp-title {
       font-family: 'Lexend', 'Inter', sans-serif;
-      font-weight: 500; font-size: 15px; color: #333840;
+      font-weight: 500; font-size: 16px; color: #333840;
       flex: 1; white-space: nowrap;
     }
     .cp-right-controls { display: flex; align-items: center; gap: 8px; }
-
-    /* Arrow shown only in collapsed pill mode */
-    .cp-expand-arrow {
-      display: none;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      border: 1.5px solid #c0c8d4;
-      background: none;
-      align-items: center; justify-content: center;
-      cursor: pointer;
-      color: #333840; font-size: 9px;
-      flex-shrink: 0;
-      transition: background 0.15s;
-    }
-    .cp-expand-arrow:hover { background: #f0f0f0; }
-
     #panelToggleBtn {
       background: #e8eaf6; border: none; border-radius: 8px;
       padding: 3px 10px; font-size: 11px; font-weight: 700;
@@ -916,38 +861,36 @@
       flex-shrink: 0;
       position: relative;
       background: #ffffff;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 24px;
+      border: 1px solid #dfdfdf;
+      border-radius: 24px 24px 12px 12px;
       display: flex; flex-direction: column;
       overflow: hidden;
       min-height: 145px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      transition: min-height 0.3s ease, border-radius 0.3s ease;
     }
 
     #terminal-header {
       flex-shrink: 0;
       display: flex; align-items: center;
-      height: 52px;
-      padding: 0 14px; gap: 0;
+      height: 48px;
+      padding: 0 14px 0 17px; gap: 0;
     }
     .term-icon-btn {
-      width: 28px; height: 28px;
-      background: #333840; border-radius: 7px;
+      width: 20px; height: 20px;
+      background: #333840; border-radius: 5px;
       box-shadow: 0 0 1px rgba(0,0,0,0.25);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .term-title {
       font-family: 'Lexend', 'Inter', sans-serif;
-      font-weight: 500; font-size: 15px; color: #333840;
-      margin-left: 12px; flex: 1;
+      font-weight: 500; font-size: 16px; color: #333840;
+      margin-left: 16px; flex: 1;
     }
     .term-expand-btn {
-      width: 22px; height: 22px;
-      border-radius: 50%; border: 1.5px solid #c0c8d4;
+      width: 20px; height: 20px;
+      border-radius: 50%; border: 1.5px solid #b0bec5;
       background: none; cursor: pointer;
-      display: none;
-      align-items: center; justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       color: #333840; font-size: 8px; flex-shrink: 0;
       transition: background 0.15s;
     }
@@ -2436,6 +2379,14 @@
     .mobile-app .wifi-return { display: none; }
     .mobile-app #responseDisplay { height: 50%; }
     .mobile-app #pyOut { height: 50%; }
+
+    /* .show = floating panel slides off to the right */
+    #codePanel.show {
+      transform: translateX(320px);
+      opacity: 0;
+      pointer-events: none !important;
+    }
+    #codePanel.show > * { pointer-events: none !important; }
 
     /* .main1 = old toggle class — now a no-op since panel is overlay */
     .main1 { grid-template-columns: 1fr !important; overflow: hidden; gap: 0; padding: 0; height: 100%; }
@@ -4595,10 +4546,6 @@
           <div id="cp-header">
             <div class="cp-code-icon"><i class="fa-solid fa-code"></i></div>
             <span class="cp-title">Code Preview</span>
-            <!-- Arrow shown only when collapsed to pill -->
-            <button class="cp-expand-arrow" onclick="_togglePanel()" title="Expand">
-              <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8px"></i>
-            </button>
             <div class="cp-right-controls">
               <button id="panelToggleBtn" onclick="cyclePanelView()">⬍ Split</button>
               <small id="status">ready</small>
@@ -4612,10 +4559,10 @@
         <div id="terminal-card">
           <div id="terminal-header">
             <div class="term-icon-btn">
-              <i class="fa-solid fa-terminal" style="font-size:10px;color:#fff"></i>
+              <i class="fa-solid fa-terminal" style="font-size:9px;color:#fff"></i>
             </div>
             <span class="term-title">Terminal</span>
-            <button class="term-expand-btn" onclick="_togglePanel()" title="Expand terminal">
+            <button class="term-expand-btn" onclick="cyclePanelView()" title="Expand terminal">
               <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:7px"></i>
             </button>
           </div>
@@ -13340,14 +13287,15 @@
       // SHOW/HIDE FLOATING CODE PANEL
       const showCode   = document.getElementById("showCode");
       const codePanel  = document.getElementById("codePanel");
-      window._togglePanel = function() {
-        const isCollapsed = codePanel.classList.toggle("panel-collapsed");
+      function _togglePanel() {
+        codePanel.classList.toggle("show");
         const icon = document.getElementById("collapseIcon");
-        // Arrow icon: > when expanded (pointing left to collapse), < when collapsed (pointing right to expand)
-        if (icon) icon.className = isCollapsed ? "fa-solid fa-angle-left" : "fa-solid fa-angle-right";
-        setTimeout(() => { if(typeof Blockly !== 'undefined') Blockly.svgResize(workspace); }, 50);
-      };
-      if (showCode) showCode.addEventListener("click", _togglePanel);
+        if (icon) {
+          icon.style.transform = codePanel.classList.contains("show") ? "rotate(180deg)" : "";
+        }
+        setTimeout(() => { Blockly.svgResize(workspace); }, 50);
+      }
+      showCode.addEventListener("click", _togglePanel);
 
       // Collapse btn inside panel (the circle arrow on left edge of panel)
       const collapseBtn = document.getElementById("panelCollapseBtn");
