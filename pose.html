@@ -938,12 +938,21 @@ function stopCamCapture(){
     setStatus('Camera stopped.');
 }
 
-function startHoldRecord(classIdx){
-    captureOneSample(classIdx);
-    holdTimer = setInterval(()=>captureOneSample(classIdx), 400);
-}
-function stopHoldRecord(){
-    clearInterval(holdTimer); holdTimer=null;
+function captureMultiplePoses(classIdx){
+    const btn = document.getElementById(`poseCapBtn-${classIdx}`);
+    if(btn){ btn.disabled=true; btn.textContent='Capturing...'; }
+    let count = 0;
+    const total = 5;
+    function doCapture(){
+        if(count >= total){
+            if(btn){ btn.disabled=false; btn.textContent='Capture 5 Poses'; }
+            return;
+        }
+        captureOneSample(classIdx);
+        count++;
+        holdTimer = setTimeout(doCapture, 500);
+    }
+    doCapture();
 }
 
 async function captureOneSample(classIdx){
@@ -1070,11 +1079,9 @@ function renderClasses(){
                         📐 Dashed box = capture area &nbsp;·&nbsp; <b>320×240px</b> crop
                     </div>
                     <div class="cam-btn-row">
-                        <button class="hold-btn" style="background:${cls.color}"
-                            onmousedown="startHoldRecord(${idx})" onmouseup="stopHoldRecord()"
-                            onmouseleave="stopHoldRecord()"
-                            ontouchstart="startHoldRecord(${idx})" ontouchend="stopHoldRecord()">
-                            Hold to Capture
+                        <button class="hold-btn" id="poseCapBtn-${idx}" style="background:${cls.color}"
+                            onclick="captureMultiplePoses(${idx})">
+                            Capture 5 Poses
                         </button>
                         <button class="stop-cam-btn" onclick="stopCamCapture()">Stop</button>
                     </div>

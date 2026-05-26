@@ -1822,14 +1822,10 @@
                 <b>${CROP_SIZE}×${CROP_SIZE}px</b> crop
             </div>
             <div class="cam-btns">
-                <button class="hold-btn"
+                <button class="hold-btn" id="capBtn-${idx}"
                     style="background:${cls.color}"
-                    onmousedown="startHold(${idx})"
-                    onmouseup="stopHold()"
-                    onmouseleave="stopHold()"
-                    ontouchstart="startHold(${idx})"
-                    ontouchend="stopHold()"
-                >Hold to Capture</button>
+                    onclick="captureMultiple(${idx})"
+                >Capture 5 Images</button>
                 <button class="stop-cam-btn"
                     onclick="stopCapture()">Stop</button>
             </div>` : k230CamIdx === idx ? `
@@ -1843,14 +1839,10 @@
                 📡 K230 Cam (${k230CamPort}) &nbsp;·&nbsp; <b>${CROP_SIZE}×${CROP_SIZE}px</b> crop
             </div>
             <div class="cam-btns">
-                <button class="hold-btn"
+                <button class="hold-btn" id="capBtnK230-${idx}"
                     style="background:${cls.color}"
-                    onmousedown="startK230Hold(${idx})"
-                    onmouseup="stopK230Hold()"
-                    onmouseleave="stopK230Hold()"
-                    ontouchstart="startK230Hold(${idx})"
-                    ontouchend="stopK230Hold()"
-                >Hold to Capture</button>
+                    onclick="captureK230Multiple(${idx})"
+                >Capture 5 Images</button>
                 <button class="stop-cam-btn"
                     onclick="stopK230Capture()">Stop</button>
             </div>` : `
@@ -2077,18 +2069,25 @@
             saveState();
         }
 
-        function startHold(classIdx) {
-            captureFrame(classIdx);
-            captureTimer = setInterval(() => captureFrame(classIdx), 120);
-        }
-
-        function stopHold() {
-            clearInterval(captureTimer);
-            captureTimer = null;
+        function captureMultiple(classIdx) {
+            const btn = document.getElementById(`capBtn-${classIdx}`);
+            if (btn) { btn.disabled = true; btn.textContent = 'Capturing...'; }
+            let count = 0;
+            const total = 5;
+            function doCapture() {
+                if (count >= total) {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Capture 5 Images'; }
+                    return;
+                }
+                captureFrame(classIdx);
+                count++;
+                captureTimer = setTimeout(doCapture, 150);
+            }
+            doCapture();
         }
 
         function stopCapture() {
-            stopHold();
+            if (captureTimer) { clearTimeout(captureTimer); captureTimer = null; }
             if (activeCamStream) {
                 activeCamStream.getTracks().forEach(t => t.stop());
                 activeCamStream = null;
@@ -2274,8 +2273,22 @@
         }
 
         let k230HoldTimer = null;
-        function startK230Hold(idx) { k230CaptureFrame(idx); k230HoldTimer = setInterval(() => k230CaptureFrame(idx), 150); }
-        function stopK230Hold() { clearInterval(k230HoldTimer); k230HoldTimer = null; }
+        function captureK230Multiple(idx) {
+            const btn = document.getElementById(`capBtnK230-${idx}`);
+            if (btn) { btn.disabled = true; btn.textContent = 'Capturing...'; }
+            let count = 0;
+            const total = 5;
+            function doCapture() {
+                if (count >= total) {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Capture 5 Images'; }
+                    return;
+                }
+                k230CaptureFrame(idx);
+                count++;
+                k230HoldTimer = setTimeout(doCapture, 150);
+            }
+            doCapture();
+        }
 
         async function k230CaptureFrame(idx) {
             if (!k230LatestFrame) return;
