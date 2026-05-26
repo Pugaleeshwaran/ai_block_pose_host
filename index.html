@@ -708,12 +708,11 @@
 
     .main {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 75% 23%;
       overflow: hidden;
-      gap: 0;
+      gap: 14px;
       padding: 0px;
       height: 100%;
-      position: relative;
     }
 
     .workspace {
@@ -740,65 +739,23 @@
       inset: 0;
     }
 
-    /* ══════════════════════════════════════════════════
-       FLOATING CODE PANEL — Figma absolute overlay
-       Width: 275px, positioned right inside .main
-       ══════════════════════════════════════════════════ */
-
-    /* The floating panel wrapper — absolutely on top of workspace */
-    #codePanel {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      bottom: 8px;
-      width: 275px;
-      z-index: 20;
+    /* ══════════════════════════════════════
+       CODE PANEL — Exact Figma (266:1043)
+       ══════════════════════════════════════ */
+    .code {
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
       display: flex;
       flex-direction: column;
       gap: 7px;
-      pointer-events: none; /* cards handle their own events */
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    #codePanel > * { pointer-events: all; }
-
-    /* Hidden state — panel slides off right */
-    #codePanel.show {
-      transform: translateX(300px);
-      opacity: 0;
-      pointer-events: none;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
     }
 
-    /* ── Collapse/expand circle arrow button ──
-       Positioned to the LEFT of the panel (like Figma's circle btn) */
-    #panelCollapseBtn {
-      position: absolute;
-      left: -16px;         /* half-overlaps the panel edge */
-      top: 15px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #333840;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 10px;
-      z-index: 30;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.2s;
-      flex-shrink: 0;
-      pointer-events: all;
-    }
-    #panelCollapseBtn:hover { background: #1e2530; }
-    /* When panel is hidden, btn stays visible and shifts left */
-    #codePanel.show #panelCollapseBtn {
-      left: calc(-300px - 16px); /* move with panel so it's always reachable */
-      transform: none;
-    }
-
-    /* ── Code Preview card ── */
+    /* ─── Code Preview card (266:700) ─── */
     #cp-card {
       flex: 1 1 0;
       min-height: 0;
@@ -809,113 +766,167 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
+    /* Header row: icon btn + title (left side only — toggle+status go right) */
     #cp-header {
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      height: 54px;
-      padding: 0 14px 0 14px;
-      gap: 10px;
+      gap: 0;
+      height: 53px;
+      padding: 0 14px 0 10px;
+      position: relative;
     }
+    /* Dark square icon button — 20×20 at left:25px top:17px */
     .cp-code-icon {
-      width: 20px; height: 20px;
+      width: 20px;
+      height: 20px;
       background: #333840;
       border-radius: 5px;
       box-shadow: 0 0 1px rgba(0,0,0,0.25);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; color: #fff; font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #fff;
+      font-size: 9px;
+      margin-left: 15px;
     }
+    /* "Code Preview" — Lexend Medium 16px #333840, left:58px */
     .cp-title {
       font-family: 'Lexend', 'Inter', sans-serif;
-      font-weight: 500; font-size: 16px; color: #333840;
-      flex: 1; white-space: nowrap;
+      font-weight: 500;
+      font-size: 16px;
+      color: #333840;
+      margin-left: 13px;
+      flex: 1;
+      white-space: nowrap;
     }
-    .cp-right-controls { display: flex; align-items: center; gap: 8px; }
+    /* Split toggle + status on right */
+    .cp-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     #panelToggleBtn {
-      background: #e8eaf6; border: none; border-radius: 8px;
-      padding: 3px 10px; font-size: 11px; font-weight: 700;
-      cursor: pointer; color: #3D5AE0; font-family: inherit; white-space: nowrap;
+      background: #e8eaf6;
+      border: none;
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #3D5AE0;
+      font-family: inherit;
+      white-space: nowrap;
     }
     #panelToggleBtn:hover { background: #d1d5f7; }
     #status { font-size: 10px; color: #94a3b8; }
 
-    .cp-divider { flex-shrink: 0; height: 1px; background: #dfdfdf; }
+    /* Divider at top:53px (1px line) */
+    .cp-divider {
+      flex-shrink: 0;
+      height: 1px;
+      background: #dfdfdf;
+    }
 
-    /* Code area — dark, fills card below divider */
+    /* Code area: bg #292e38, rounded bl/br 20px, tl/tr 5px, padding 14px */
     #pyOut {
-      margin: 0; padding: 14px;
+      margin: 0;
+      padding: 14px;
       background: #292e38;
-      border-radius: 0 0 20px 20px;   /* flat top, rounded bottom like Figma */
+      border-radius: 0px 0px 20px 20px;
       color: #d9d9e0;
-      overflow: auto; min-height: 0; flex: 1 1 0;
+      overflow: auto;
+      min-height: 0;
+      flex: 1 1 0;
       font: 400 11px/1.7 'Courier New', ui-monospace, monospace;
       white-space: pre;
       transition: flex 0.3s ease, opacity 0.3s ease;
     }
 
-    /* ── Terminal card ── */
+    /* ─── Terminal card (266:684) ─── */
     #terminal-card {
       flex-shrink: 0;
       position: relative;
       background: #ffffff;
       border: 1px solid #dfdfdf;
-      border-radius: 24px 24px 12px 12px;
-      display: flex; flex-direction: column;
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
       min-height: 145px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     }
 
+    /* Terminal header: icon btn left:17 top:17, title left:53, expand-btn right */
     #terminal-header {
       flex-shrink: 0;
-      display: flex; align-items: center;
-      height: 48px;
-      padding: 0 14px 0 17px; gap: 0;
+      display: flex;
+      align-items: center;
+      height: 47px;
+      padding: 0 14px 0 17px;
+      gap: 0;
     }
+    /* Dark square terminal icon — 20×20 at left:17 top:17 */
     .term-icon-btn {
-      width: 20px; height: 20px;
-      background: #333840; border-radius: 5px;
+      width: 20px;
+      height: 20px;
+      background: #333840;
+      border-radius: 5px;
       box-shadow: 0 0 1px rgba(0,0,0,0.25);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
+    /* "Terminal" — Lexend Medium 16px #333840, left:53 */
     .term-title {
       font-family: 'Lexend', 'Inter', sans-serif;
-      font-weight: 500; font-size: 16px; color: #333840;
-      margin-left: 16px; flex: 1;
+      font-weight: 500;
+      font-size: 16px;
+      color: #333840;
+      margin-left: 16px;
+      flex: 1;
     }
+    /* Expand/collapse arrow button — 20×20 circle, at left:206 (right side) */
     .term-expand-btn {
-      width: 20px; height: 20px;
-      border-radius: 50%; border: 1.5px solid #b0bec5;
-      background: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: #333840; font-size: 8px; flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #b0bec5;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333840;
+      font-size: 8px;
+      flex-shrink: 0;
       transition: background 0.15s;
     }
     .term-expand-btn:hover { background: #f0f0f0; }
-    .term-divider { flex-shrink: 0; height: 1px; background: #dfdfdf; }
 
-    /* Terminal body */
+    /* Terminal divider at top:47 */
+    .term-divider {
+      flex-shrink: 0;
+      height: 1px;
+      background: #dfdfdf;
+    }
+
+    /* rd-wrapper = terminal output body */
     .rd-wrapper {
-      position: relative; flex: 1 1 0; min-height: 0;
-      display: flex; flex-direction: column;
+      position: relative;
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       transition: flex 0.3s ease, opacity 0.3s ease;
       overflow: hidden;
       background: #f5f5f5;
-      margin: 8px; border-radius: 8px;
+      margin: 8px;
+      border-radius: 8px;
     }
-
-    /* ── Toggle states ── */
-    #codePanel.show-pyout-only #cp-card    { flex: 1 1 100%; }
-    #codePanel.show-pyout-only #terminal-card { flex: 0 0 0; min-height: 0; opacity: 0; pointer-events: none; overflow: hidden; }
-    #codePanel.show-terminal-only #cp-card { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
-    #codePanel.show-terminal-only #terminal-card { flex: 1 1 100%; max-height: none; border-radius: 24px; }
-    #codePanel.show-pyout-only #pyOut    { flex: 1 1 100%; }
-    #codePanel.show-pyout-only .rd-wrapper { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
-    #codePanel.show-terminal-only #pyOut { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
-    #codePanel.show-terminal-only .rd-wrapper { flex: 1 1 100%; }
 
     .wifi-return {
       padding: 10px;
@@ -2196,7 +2207,7 @@
       }
 
       .main {
-        grid-template-columns: 1fr;
+        grid-template-columns: 68% 30%;
       }
 
       .btn-circle {
@@ -2215,7 +2226,7 @@
       }
 
       .main {
-        grid-template-columns: 1fr;
+        grid-template-columns: 72% 26%;
       }
     }
 
@@ -2277,12 +2288,17 @@
     }
 
     #responseDisplay {
-      flex: 1 1 0; min-height: 0;
-      background: transparent; color: #334155;
-      padding: 8px 10px; overflow-y: auto;
+      flex: 1 1 0;
+      min-height: 0;
+      background: transparent;
+      color: #334155;
+      padding: 8px 10px;
+      overflow-y: auto;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 11px; line-height: 1.5;
-      display: flex; flex-direction: column;
+      font-size: 11px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
     }
 
     #responseDisplay .rd-line {
@@ -2327,14 +2343,31 @@
     }
 
     #rd-clear-btn {
-      position: absolute; top: 4px; right: 6px;
-      background: rgba(0,0,0,0.08); color: #64748b;
-      border: none; border-radius: 6px;
-      font-size: 10px; padding: 2px 7px; cursor: pointer; z-index: 2; font-family: inherit;
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: rgba(0,0,0,0.08);
+      color: #64748b;
+      border: none;
+      border-radius: 6px;
+      font-size: 10px;
+      padding: 2px 7px;
+      cursor: pointer;
+      z-index: 2;
+      font-family: inherit;
     }
     #rd-clear-btn:hover { background: rgba(0,0,0,0.15); color: #1e293b; }
 
-    /* (rd-wrapper, #pyOut, toggle states defined in main .code block above) */
+    /* Toggle states — card-level */
+    #codePanel.show-pyout-only #cp-card    { flex: 1 1 100%; }
+    #codePanel.show-pyout-only #terminal-card { flex: 0 0 0; min-height: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+    #codePanel.show-terminal-only #cp-card { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
+    #codePanel.show-terminal-only #terminal-card { flex: 1 1 100%; max-height: none; border-radius: 24px; }
+    /* Toggle states — inner elements */
+    #codePanel.show-pyout-only #pyOut    { flex: 1 1 100%; }
+    #codePanel.show-pyout-only .rd-wrapper { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
+    #codePanel.show-terminal-only #pyOut { flex: 0 0 0; opacity: 0; pointer-events: none; overflow: hidden; }
+    #codePanel.show-terminal-only .rd-wrapper { flex: 1 1 100%; }
 
     #btnUndo {
       display: none;
@@ -2346,50 +2379,82 @@
 
     @media screen and (max-width: 1200px) {
       .main {
-        grid-template-columns: 1fr;
+        grid-template-columns: 75% 23%;
         overflow: hidden;
         font-size: 12px;
         height: 100%;
       }
 
-      #btnUndo { display: grid; }
-      #btnRedo  { display: grid; }
+      #btnUndo {
+        display: grid;
+      }
 
-      .wifi-return { display: none; }
+      #btnRedo {
+        display: grid;
+      }
 
-      .blocklyScrollbarVertical  { width: 15px; }
-      .blocklyScrollbarHorizontal { height: 15px; }
+      .wifi-return {
+        display: none;
+      }
 
-      #responseDisplay { flex: 1 1 0; min-height: 0; }
+      .blocklyScrollbarVertical {
+        width: 15px;
+      }
 
-      /* panel smaller on tablet */
-      #codePanel { width: 240px; }
+      .blocklyScrollbarHorizontal {
+        height: 15px;
+      }
+
+      #responseDisplay {
+        flex: 1 1 0;
+        min-height: 0;
+      }
+
+      /* Inside media query: .main1 must also win here */
+      .main.main1 {
+        grid-template-columns: 1fr !important;
+      }
     }
 
-    /* JS-applied class for Expo WebView */
+    /* JS-applied class for Expo WebView — ensures mobile layout even if
+       the CSS pixel viewport exceeds 1200px on high-DPI Android tablets */
     .mobile-app .main {
-      grid-template-columns: 1fr;
+      grid-template-columns: 75% 23%;
       overflow: hidden;
       font-size: 12px;
       height: 100%;
     }
 
     .mobile-app #btnUndo,
-    .mobile-app #btnRedo { display: grid; }
-    .mobile-app .wifi-return { display: none; }
-    .mobile-app #responseDisplay { height: 50%; }
-    .mobile-app #pyOut { height: 50%; }
-
-    /* .show = floating panel slides off to the right */
-    #codePanel.show {
-      transform: translateX(320px);
-      opacity: 0;
-      pointer-events: none !important;
+    .mobile-app #btnRedo {
+      display: grid;
     }
-    #codePanel.show > * { pointer-events: none !important; }
 
-    /* .main1 = old toggle class — now a no-op since panel is overlay */
-    .main1 { grid-template-columns: 1fr !important; overflow: hidden; gap: 0; padding: 0; height: 100%; }
+    .mobile-app .wifi-return {
+      display: none;
+    }
+
+    .mobile-app #responseDisplay {
+      height: 50%;
+    }
+
+    .mobile-app #pyOut {
+      height: 50%;
+    }
+
+    .show {
+      display: none;
+    }
+
+    /* .main1 = code panel hidden, workspace takes full width.
+       !important ensures it wins over @media and .mobile-app rules */
+    .main1 {
+      grid-template-columns: 1fr !important;
+      overflow: hidden;
+      gap: 14px;
+      padding: 0px;
+      height: 100%;
+    }
 
     .checkbox-wrapper-8 .tgl {
       display: none;
@@ -4347,6 +4412,7 @@
     }
 
     body.dark-mode .box,
+    body.dark-mode .code { background: transparent; }
     body.dark-mode #cp-card,
     body.dark-mode #terminal-card { background: #1e2535; border-color: #2d3748; }
     body.dark-mode .cp-divider,
@@ -4536,37 +4602,44 @@
       </div>
       <div id="codePanel" class="code">
 
-        <!-- Circle arrow collapse button (left edge of panel, like Figma) -->
-        <button id="panelCollapseBtn" title="Toggle code panel">
-          <i class="fa-solid fa-angle-right" id="collapseIcon"></i>
-        </button>
-
         <!-- ══ Code Preview card — Figma 266:700 ══ -->
         <div id="cp-card">
           <div id="cp-header">
-            <div class="cp-code-icon"><i class="fa-solid fa-code"></i></div>
+            <!-- Dark square icon btn (left:25 top:17) -->
+            <div class="cp-code-icon">
+              <i class="fa-solid fa-code"></i>
+            </div>
+            <!-- Title: Lexend Medium 16px #333840 (left:58) -->
             <span class="cp-title">Code Preview</span>
+            <!-- Split toggle + status (right side) -->
             <div class="cp-right-controls">
               <button id="panelToggleBtn" onclick="cyclePanelView()">⬍ Split</button>
               <small id="status">ready</small>
             </div>
           </div>
+          <!-- Divider at top:53px -->
           <div class="cp-divider"></div>
+          <!-- Code area: bg #292e38, rounded-bl-20 rounded-br-20 rounded-tl-5 rounded-tr-5 -->
           <pre id="pyOut"># drag &amp; drop blocks to generate Python…</pre>
         </div>
 
         <!-- ══ Terminal card — Figma 266:684 ══ -->
         <div id="terminal-card">
           <div id="terminal-header">
+            <!-- Dark square terminal icon (left:17 top:17) -->
             <div class="term-icon-btn">
               <i class="fa-solid fa-terminal" style="font-size:9px;color:#fff"></i>
             </div>
+            <!-- Title: Lexend Medium 16px #333840 (left:53) -->
             <span class="term-title">Terminal</span>
+            <!-- Expand arrow circle btn (left:206 = right side) -->
             <button class="term-expand-btn" onclick="cyclePanelView()" title="Expand terminal">
               <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:7px"></i>
             </button>
           </div>
+          <!-- Divider at top:47px -->
           <div class="term-divider"></div>
+          <!-- Terminal output + clear btn -->
           <div class="rd-wrapper">
             <button id="rd-clear-btn" onclick="rdClear()">✕ Clear</button>
             <div id="responseDisplay"></div>
@@ -13284,22 +13357,15 @@
 
 
 
-      // SHOW/HIDE FLOATING CODE PANEL
-      const showCode   = document.getElementById("showCode");
-      const codePanel  = document.getElementById("codePanel");
-      function _togglePanel() {
+      // SHOW/HIDE CODE PANEL
+      const showCode = document.getElementById("showCode");
+      const codePanel = document.querySelector(".code");
+      const mainSection = document.querySelector(".main");
+      showCode.addEventListener("click", function () {
         codePanel.classList.toggle("show");
-        const icon = document.getElementById("collapseIcon");
-        if (icon) {
-          icon.style.transform = codePanel.classList.contains("show") ? "rotate(180deg)" : "";
-        }
-        setTimeout(() => { Blockly.svgResize(workspace); }, 50);
-      }
-      showCode.addEventListener("click", _togglePanel);
-
-      // Collapse btn inside panel (the circle arrow on left edge of panel)
-      const collapseBtn = document.getElementById("panelCollapseBtn");
-      if (collapseBtn) collapseBtn.addEventListener("click", _togglePanel);
+        mainSection.classList.toggle("main1");
+        setTimeout(() => { Blockly.svgResize(workspace); workspace.scrollCenter(); }, 50);
+      });
 
       // Default starting block — v12 JSON serialization API
       Blockly.serialization.workspaces.load({
