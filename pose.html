@@ -527,6 +527,14 @@
                 <button class="action-btn btn-export" id="exportBtn"
                     onclick="exportKmodel()" disabled>Export .kmodel (Local)</button>
 
+                <!-- Backend URL (used by compile + deploy) -->
+                <div style="display:flex;align-items:center;gap:5px;margin-top:10px;">
+                    <span style="font-size:12px;color:#64748b;white-space:nowrap;">Backend URL:</span>
+                    <input type="text" class="k230-input" id="backendUrlInput"
+                        style="width:250px;"
+                        title="Backend URL — auto-detected from page origin">
+                </div>
+
                 <div class="k230-settings">
                     <div class="k230-row">
                         <span>Method:</span>
@@ -597,7 +605,27 @@
 // ──────────────────────────────────────────────────────────────
 // CONFIG
 // ──────────────────────────────────────────────────────────────
-const CONVERT_SERVER   = 'https://wesley-plays-seasonal-third.trycloudflare.com';
+const CONVERT_SERVER = (() => {
+    const origin = window.location.origin;
+    const isCloudflare = origin && origin.includes('trycloudflare.com');
+    const isWindowsAgent = origin && origin.includes('localhost:5002');
+    if (isCloudflare || isWindowsAgent) {
+        return origin;
+    }
+    return 'http://localhost:5002';
+})();
+
+window.addEventListener('DOMContentLoaded', () => {
+    const inputEl = document.getElementById('backendUrlInput');
+    if (inputEl) inputEl.value = CONVERT_SERVER;
+});
+
+function getBackendUrl() {
+    const input = document.getElementById('backendUrlInput');
+    let url = input?.value?.trim() || CONVERT_SERVER;
+    if (url.endsWith('/')) url = url.slice(0, -1);
+    return url;
+}
 const CHUNK_BYTES      = 192;
 const SERIAL_SUPPORTED = 'serial' in navigator;
 const NUM_KEYPOINTS    = 17;   // MoveNet standard
@@ -1639,7 +1667,7 @@ async function deployToK230(){
         formData.append('labels',JSON.stringify(classes.map(c=>c.name)));
 
         setStatus('Compiling on backend...');
-        const resp=await fetch(`${CONVERT_SERVER}/convert`,{method:'POST',body:formData});
+        const resp=await fetch(`${getBackendUrl()}/convert`,{method:'POST',body:formData});
         if(!resp.ok)throw new Error(`Server error ${resp.status}: ${await resp.text()}`);
 
         setStatus('Unpacking compiled model...');
@@ -1740,7 +1768,7 @@ async function exportKmodel(){
         formData.append('labels',JSON.stringify(classes.map(c=>c.name)));
 
         setStatus('Sending to backend...');
-        const resp=await fetch(`${CONVERT_SERVER}/convert`,{method:'POST',body:formData});
+        const resp=await fetch(`${getBackendUrl()}/convert`,{method:'POST',body:formData});
         if(!resp.ok){const err=await resp.json().catch(()=>({error:'Server error'}));
             throw new Error(err.error||`Error ${resp.status}`);}
 

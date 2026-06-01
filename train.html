@@ -303,9 +303,11 @@
             border-radius: 8px;
             background: #000;
             display: block;
+            transform: scaleX(-1); /* Mirror live webcam feed */
         }
 
         .crop-overlay {
+            display: none; /* Hide dashed crop overlay box */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -632,6 +634,7 @@
             object-fit: cover;
             background: #0f172a;
             display: none;
+            transform: scaleX(-1); /* Mirror live webcam feed */
         }
 
         .no-cam-placeholder {
@@ -1526,29 +1529,7 @@
         // BACKGROUND REMOVAL — uses CROP_SIZE for intermediate canvas
         // ══════════════════════════════════════════════════════════════
         function applyBackgroundFade(canvas) {
-            const ctx = canvas.getContext('2d');
-            const size = canvas.width; // respects CROP_SIZE
-            const data = ctx.getImageData(0, 0, size, size);
-            const px = data.data;
-            const cx = size / 2;
-            const cy = size / 2;
-            const innerR = size * 0.3125; // ~70/224 ratio
-            const outerR = size / 2;
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x < size; x++) {
-                    const idx = (y * size + x) * 4;
-                    const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-                    if (dist > innerR) {
-                        const t = Math.min(1,
-                            (dist - innerR) / (outerR - innerR)
-                        );
-                        px[idx] = Math.round(px[idx] * (1 - t) + 128 * t);
-                        px[idx + 1] = Math.round(px[idx + 1] * (1 - t) + 128 * t);
-                        px[idx + 2] = Math.round(px[idx + 2] * (1 - t) + 128 * t);
-                    }
-                }
-            }
-            ctx.putImageData(data, 0, 0);
+            // No-op to remove the grey shade and keep normal photos
         }
 
         // ── Center-crop source into canvas at CROP_SIZE ──────────────
@@ -1562,14 +1543,24 @@
                 srcW = source.naturalWidth || source.width || CROP_SIZE;
                 srcH = source.naturalHeight || source.height || CROP_SIZE;
             }
-            const cropSize = Math.min(srcW, srcH) * 0.70;
+            // Capture full center square of photo instead of cropping to 70%
+            const cropSize = Math.min(srcW, srcH);
             const srcX = (srcW - cropSize) / 2;
             const srcY = (srcH - cropSize) / 2;
+            
+            ctx.save();
+            if (source instanceof HTMLVideoElement) {
+                // Mirror the video capture horizontally to match mirrored live preview
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            
             // Draw into canvas at its own size (CROP_SIZE × CROP_SIZE)
             ctx.drawImage(
                 source, srcX, srcY, cropSize, cropSize,
                 0, 0, canvas.width, canvas.height
             );
+            ctx.restore();
         }
 
         // ── Build a canvas at current CROP_SIZE with crop + fade ──────
@@ -1818,8 +1809,8 @@
             </div>
             <div style="font-size:11px;color:#64748b;
                 text-align:center;margin-bottom:6px;">
-                📐 Dashed box = capture area &nbsp;·&nbsp;
-                <b>${CROP_SIZE}×${CROP_SIZE}px</b> crop
+                📐 Capture Canvas Size &nbsp;·&nbsp;
+                <b>${CROP_SIZE}×${CROP_SIZE}px</b>
             </div>
             <div class="cam-btns">
                 <button class="hold-btn" id="capBtn-${idx}"
@@ -1836,7 +1827,7 @@
             </div>
             <div style="font-size:11px;color:#64748b;
                 text-align:center;margin-bottom:6px;">
-                📡 K230 Cam (${k230CamPort}) &nbsp;·&nbsp; <b>${CROP_SIZE}×${CROP_SIZE}px</b> crop
+                📡 K230 Cam (${k230CamPort}) &nbsp;·&nbsp; <b>${CROP_SIZE}×${CROP_SIZE}px</b>
             </div>
             <div class="cam-btns">
                 <button class="hold-btn" id="capBtnK230-${idx}"
